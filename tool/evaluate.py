@@ -2,10 +2,10 @@ import numpy as np
 import os
 import cv2
 import multiprocessing
-from visualization.plot_error_map import plot_error_map
-from visualization.plot_height_map import plot_height_map
-from visualization.plot_error_dist import plot_err_dist
-from lib.dsm_util import read_dsm_tif
+from tool_visualization.plot_error_map import plot_error_map
+from tool_visualization.plot_height_map import plot_height_map
+from tool_visualization.plot_error_dist import plot_err_dist
+from tool_lib.dsm_util import read_dsm_tif
 
 
 def split_big_list(big_list, num_small_lists):

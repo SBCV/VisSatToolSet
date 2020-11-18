@@ -2,40 +2,12 @@ import os
 import json
 import numpy as np
 
-from visualization.plot_height_map import plot_height_map
-from lib.dsm_util import write_dsm_tif
-from lib.proj_to_grid import proj_to_grid
-import cv2
+from tool_lib.ply_np_converter import ply2np, np2ply
+from tool_lib.latlon_utm_converter import latlon_to_eastnorh
+from tool_lib.latlonalt_enu_converter import enu_to_latlonalt
 
-from lib.ply_np_converter import ply2np, np2ply
-from lib.latlon_utm_converter import latlon_to_eastnorh
-from lib.latlonalt_enu_converter import latlonalt_to_enu, enu_to_latlonalt
-
-from evaluate import evaluate
-
-# points is in the cooridnate system (UTM east, UTM north, altitude)
-def produce_dsm_from_points(bbx, points, tif_to_write, jpg_to_write=None):
-    # write dsm to tif
-    ul_e = bbx['ul_easting']
-    ul_n = bbx['ul_northing']
-
-    e_resolution = 0.5  # 0.5 meters per pixel
-    n_resolution = 0.5 
-    e_size = int(bbx['width'] / e_resolution) + 1
-    n_size = int(bbx['height'] / n_resolution) + 1
-    dsm = proj_to_grid(points, ul_e, ul_n, e_resolution, n_resolution, e_size, n_size)
-    # median filter
-    dsm = cv2.medianBlur(dsm.astype(np.float32), 3)
-    write_dsm_tif(dsm, tif_to_write, 
-                  (ul_e, ul_n, e_resolution, n_resolution), 
-                  (bbx['zone_number'], bbx['hemisphere']), nodata_val=-9999)
-
-    # create a preview file
-    if jpg_to_write is not None:
-        dsm = np.clip(dsm, bbx['alt_min'], bbx['alt_max'])
-        plot_height_map(dsm, jpg_to_write, save_cbar=True)
-
-    return (ul_e, ul_n, e_size, n_size, e_resolution, n_resolution)
+from tool.evaluate import evaluate
+from tool.produce_dsm import produce_dsm_from_points
 
 
 def main(site_data_dir, in_ply, out_dir, eval=False, max_processes=4):
